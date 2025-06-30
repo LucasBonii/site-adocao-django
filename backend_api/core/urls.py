@@ -1,0 +1,14 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import UsuarioViewSet, OngViewSet, AnimalViewSet, CandidaturaViewSet, TutorAnimalViewSet
+
+router = DefaultRouter()
+router.register(r'usuarios', UsuarioViewSet)
+router.register(r'ongs', OngViewSet)
+router.register(r'animais', AnimalViewSet)
+router.register(r'candidaturas', CandidaturaViewSet)
+router.register(r'tutores-animais', TutorAnimalViewSet)
+
+urlpatterns = [
+    path('', include(router.urls))
+]
