@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'core',
+    'visitas',
     'corsheaders',
 ]
 
@@ -85,6 +86,10 @@ DATABASES = {
         'PASSWORD': '2803',
         'HOST': 'localhost',
         'PORT': '5432',
+    },
+    'mongo': {
+        'ENGINE': 'djongo',
+        'NAME': 'adocao_nosql',
     }
 }
 

@@ -1,11 +1,15 @@
 from rest_framework import serializers
 from .models import Usuario, Ong, Animal, Candidatura, TutorAnimal
-from django.contrib.auth import get_user_model
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
-        fields = '__all__'
+        model = Usuario
+        fields = ['id', 'username', 'email', 'password', 'tipo']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        return Usuario.objects.create_user(**validated_data)
+
 
 class OngSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,11 +20,27 @@ class AnimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Animal
         fields = '__all__'
+        read_only_fields = ['ong']
 
 class CandidaturaSerializer(serializers.ModelSerializer):
+    animal = serializers.SerializerMethodField()
+    adotante = serializers.SerializerMethodField()
     class Meta:
         model = Candidatura
-        fields = '__all__'
+        fields = ['id', 'animal', 'justificativa', 'status', 'data_candidatura', 'adotante']
+        read_only_fields = ['status', 'data_candidatura']
+
+    def get_animal(self, obj):
+        return {
+            'id': obj.animal.id,
+            'nome': obj.animal.nome
+        }
+
+    def get_adotante(self, obj):
+        return {
+            'id': obj.adotante.id,
+            'username': obj.adotante.username
+        }
 
 class TutorAnimalSerializer(serializers.ModelSerializer):
     class Meta:

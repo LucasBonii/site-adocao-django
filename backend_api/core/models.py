@@ -40,8 +40,21 @@ class Candidatura(models.Model):
     adotante = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     animal = models.ForeignKey(Animal, on_delete=models.CASCADE)
     data_candidatura = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=50)
-    justificativa = models.TextField()
+    
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pendente', 'Pendente'),
+            ('aprovada', 'Aprovada'),
+            ('rejeitada', 'Rejeitada'),
+        ],
+        default='pendente'
+    )
+    
+    justificativa = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.adotante.username} → {self.animal.nome} ({self.status})"
 
 class TutorAnimal(models.Model):
     tutor = models.ForeignKey(Usuario, on_delete=models.CASCADE)
