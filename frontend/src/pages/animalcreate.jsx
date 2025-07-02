@@ -22,7 +22,7 @@ export default function AnimalCreate() {
         especie,
         porte,
         sexo,
-        idade,
+        idade: Number(idade),  // <--- AQUI
         descricao,
         status,
       }, {
