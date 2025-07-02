@@ -105,3 +105,25 @@ def me_view(request):
         'tipo': user.tipo,
         'email': user.email,
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def meus_animais_adotados(request):
+    tutor = request.user
+    # Filtra só os animais adotados pelo tutor
+    tutor_animais = TutorAnimal.objects.filter(tutor=tutor)
+
+    data = [{
+        'id': ta.animal.id,
+        'nome': ta.animal.nome,
+        'especie': ta.animal.especie,
+        'porte': ta.animal.porte,
+        'sexo': ta.animal.sexo,
+        'idade': ta.animal.idade,
+        'descricao': ta.animal.descricao,
+        'data_inicio_responsabilidade': ta.data_inicio_responsabilidade,
+        'observacoes': ta.observacoes,
+    } for ta in tutor_animais]
+
+    return Response(data)
