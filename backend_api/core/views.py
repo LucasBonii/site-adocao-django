@@ -43,6 +43,9 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
+        if getattr(self, 'swagger_fake_view', False):
+            return Candidatura.objects.none()
+
         if user.tipo == 'tutor':
             return Candidatura.objects.filter(adotante=user)
 
