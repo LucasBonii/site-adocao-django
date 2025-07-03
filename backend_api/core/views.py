@@ -33,6 +33,16 @@ class AnimalViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAuthenticated]
         return [p() for p in permission_classes]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.tipo == 'admin':
+            return Animal.objects.all()
+        elif user.tipo == 'ong':
+            return Animal.objects.filter(ong=user)
+        elif user.tipo == 'tutor':
+            return Animal.objects.filter(status='Disponível')
+        return Animal.objects.none()
 
     def perform_create(self, serializer):
         try:
@@ -66,7 +76,10 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
 
         elif user.tipo == 'ong':
             return Candidatura.objects.filter(animal__ong__usuario=user)
-
+        
+        elif user.tipo == 'ong':
+            return Candidatura.objects.all()
+        
         return Candidatura.objects.all()
     
     def perform_create(self, serializer):
@@ -86,7 +99,7 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
         TutorAnimal.objects.create(
             tutor=candidatura.adotante,
             animal=candidatura.animal,
-            data_inicio_responsabilidade=timezone.now(),  # ou datetime.date.today()
+            data_inicio_responsabilidade=timezone.now(),  
             observacoes=''
         )
 
@@ -125,9 +138,11 @@ def me_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def meus_animais_adotados(request):
-    tutor = request.user
-    # Filtra só os animais adotados pelo tutor
-    tutor_animais = TutorAnimal.objects.filter(tutor=tutor)
+    user = request.user
+    if user.tipo == 'admin':
+        tutor_animais = TutorAnimal.objects.all()
+    else:
+        tutor_animais = TutorAnimal.objects.filter(tutor=user)
 
     data = [{
         'id': ta.animal.id,
@@ -138,6 +153,7 @@ def meus_animais_adotados(request):
         'idade': ta.animal.idade,
         'descricao': ta.animal.descricao,
         'data_inicio_responsabilidade': ta.data_inicio_responsabilidade,
+        'tutor_id': ta.tutor.id,
         'observacoes': ta.observacoes,
     } for ta in tutor_animais]
 

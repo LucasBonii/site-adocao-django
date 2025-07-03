@@ -55,6 +55,27 @@ export default function AnimalList() {
     }
   };
 
+  const editarAnimal = (id) => {
+    navigate(`/animais/editar/${id}`);
+  };
+
+  const deletarAnimal = async (id) => {
+    if (!window.confirm('Tem certeza que deseja deletar este animal?')) return;
+
+    try {
+      await axios.delete(`http://localhost:8000/api/animais/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setAnimais(animais.filter((animal) => animal.id !== id));
+      alert('Animal deletado com sucesso!');
+    } catch (err) {
+      console.error(err.response?.data);
+      alert('Erro ao deletar animal.');
+    }
+  };
+
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -85,6 +106,17 @@ export default function AnimalList() {
                     >
                       Candidatar-se
                     </button>
+                  )}
+
+                  {(userTipo === 'admin' || userTipo === 'ong') && (
+                    <div className="mt-auto d-flex gap-2">
+                      <button className="btn btn-warning" onClick={() => editarAnimal(animal.id)}>
+                        Editar
+                      </button>
+                      <button className="btn btn-danger" onClick={() => deletarAnimal(animal.id)}>
+                        Deletar
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

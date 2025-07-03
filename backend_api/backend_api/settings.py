@@ -88,10 +88,6 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '5432',
     },
-    'mongo': {
-        'ENGINE': 'djongo',
-        'NAME': 'adocao_nosql',
-    }
 }
 
 
