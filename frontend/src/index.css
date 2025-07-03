@@ -24,10 +24,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: Arial, sans-serif;
 }
 
 h1 {
@@ -53,18 +52,6 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-
-body {
-  font-family: Arial, sans-serif;
-  padding: 2rem;
-}
-form {
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-  gap: 10px;
-}
-
 
 @media (prefers-color-scheme: light) {
   :root {

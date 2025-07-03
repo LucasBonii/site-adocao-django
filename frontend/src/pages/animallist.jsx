@@ -1,25 +1,37 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function AnimalList() {
   const [animais, setAnimais] = useState([]);
   const [erro, setErro] = useState('');
+  const [userTipo, setUserTipo] = useState(null);
   const token = localStorage.getItem('access');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAnimais = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/animais/', {
+        const resUser = await axios.get('http://localhost:8000/api/me/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setAnimais(response.data);
+        setUserTipo(resUser.data.tipo);
+
+        const resAnimais = await axios.get('http://localhost:8000/api/animais/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setAnimais(resAnimais.data);
       } catch (err) {
-        setErro('Erro ao buscar animais. Faça login.');
+        console.error(err);
+        setErro('Erro ao carregar dados. Faça login novamente.');
       }
     };
-    fetchAnimais();
+
+    fetchData();
   }, [token]);
 
   const candidatar = async (animalId) => {
@@ -44,17 +56,42 @@ export default function AnimalList() {
   };
 
   return (
-    <div>
-      <h2>Lista de Animais</h2>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
-      <ul>
-        {animais.map((animal) => (
-          <li key={animal.id}>
-            <strong>{animal.nome}</strong> - {animal.especie} - {animal.status}
-            <button onClick={() => candidatar(animal.id)}>Candidatar-se</button>
-          </li>
-        ))}
-      </ul>
+    <div className="container py-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Animais Disponíveis</h2>
+        <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
+          Voltar à Dashboard
+        </button>
+      </div>
+
+      {erro && <div className="alert alert-danger">{erro}</div>}
+
+      <div className="row g-4">
+        {animais.length === 0 ? (
+          <p className="text-muted">Nenhum animal disponível no momento.</p>
+        ) : (
+          animais.map((animal) => (
+            <div className="col-md-4" key={animal.id}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title">{animal.nome}</h5>
+                  <p className="card-text mb-1">Espécie: {animal.especie}</p>
+                  <p className="card-text mb-2">Status: {animal.status}</p>
+
+                  {userTipo === 'tutor' && (
+                    <button
+                      className="btn btn-primary mt-auto"
+                      onClick={() => candidatar(animal.id)}
+                    >
+                      Candidatar-se
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

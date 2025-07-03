@@ -4,8 +4,9 @@ from .serializers import UsuarioSerializer, OngSerializer, AnimalSerializer, Can
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.exceptions import ValidationError, PermissionDenied
+from .permissions import IsOng, IsTutor, IsOngDonaDoAnimal
 from django.utils import timezone
 
 
@@ -25,7 +26,13 @@ class OngViewSet(viewsets.ModelViewSet):
 class AnimalViewSet(viewsets.ModelViewSet):
     queryset = Animal.objects.all()
     serializer_class = AnimalSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [IsOng]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [p() for p in permission_classes]
 
     def perform_create(self, serializer):
         try:
@@ -38,7 +45,15 @@ class AnimalViewSet(viewsets.ModelViewSet):
 class CandidaturaViewSet(viewsets.ModelViewSet):
     queryset = Candidatura.objects.all()
     serializer_class = CandidaturaSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsTutor]
+        elif self.action in ['aprovar', 'rejeitar']:
+            permission_classes = [IsOngDonaDoAnimal]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [p() for p in permission_classes]
 
     def get_queryset(self):
         user = self.request.user

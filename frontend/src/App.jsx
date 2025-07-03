@@ -7,6 +7,7 @@ import AnimalCreate from './pages/animalcreate';
 import Register from './pages/register';
 import Candidaturas from './pages/candidaturas';
 import Visitas from './pages/visitas';
+import AnimaisAdotados from './pages/animaisadotados';
 const isAuthenticated = () => !!localStorage.getItem('access');
 
 export default function App() {
@@ -41,7 +42,7 @@ export default function App() {
 
   return (
     <div>
-      {isAuthenticated() && <button onClick={handleLogout}>Sair</button>}
+
       <Routes>
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
@@ -62,6 +63,9 @@ export default function App() {
           path="/animais/novo"
           element={isAuthenticated() ? <AnimalCreate /> : <Navigate to="/login" />}
         />
+
+        <Route path="/meus-animais-adotados" element={isAuthenticated() ? <AnimaisAdotados /> : <Navigate to="/login" />} />
+
         <Route
           path="/visitas"
           element={isAuthenticated() ? <Visitas/> : <Navigate to="/login" />}

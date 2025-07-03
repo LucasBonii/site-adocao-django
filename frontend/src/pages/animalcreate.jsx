@@ -22,7 +22,7 @@ export default function AnimalCreate() {
         especie,
         porte,
         sexo,
-        idade: Number(idade),  // <--- AQUI
+        idade: Number(idade),
         descricao,
         status,
       }, {
@@ -30,6 +30,7 @@ export default function AnimalCreate() {
           Authorization: `Bearer ${token}`,
         },
       });
+      alert('Animal cadastrado com sucesso!');
       navigate('/animais');
     } catch (err) {
       setErro('Erro ao cadastrar animal. Verifique os dados.');
@@ -37,20 +38,72 @@ export default function AnimalCreate() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Cadastrar Animal</h2>
-      <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-      <input type="text" placeholder="Espécie" value={especie} onChange={(e) => setEspecie(e.target.value)} required />
-      <input type="text" placeholder="Porte" value={porte} onChange={(e) => setPorte(e.target.value)} />
-      <input type="text" placeholder="Sexo" value={sexo} onChange={(e) => setSexo(e.target.value)} />
-      <input type="number" placeholder="Idade" value={idade} onChange={(e) => setIdade(e.target.value)} />
-      <textarea placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-      <select value={status} onChange={(e) => setStatus(e.target.value)}>
-        <option value="Disponível">Disponível</option>
-        <option value="Adotado">Adotado</option>
-      </select>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
-      <button type="submit">Cadastrar</button>
-    </form>
+    <div className="container mt-5" style={{ maxWidth: '600px' }}>
+      <h2 className="text-center mb-4">Cadastrar Animal</h2>
+      {erro && <div className="alert alert-danger">{erro}</div>}
+
+      <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Nome"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Espécie"
+          value={especie}
+          onChange={(e) => setEspecie(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Porte"
+          value={porte}
+          onChange={(e) => setPorte(e.target.value)}
+        />
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Sexo"
+          value={sexo}
+          onChange={(e) => setSexo(e.target.value)}
+        />
+        <input
+          type="number"
+          className="form-control"
+          placeholder="Idade"
+          value={idade}
+          onChange={(e) => setIdade(e.target.value)}
+        />
+        <textarea
+          className="form-control"
+          placeholder="Descrição"
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+        />
+        <select
+          className="form-select"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <option value="Disponível">Disponível</option>
+          <option value="Adotado">Adotado</option>
+        </select>
+
+        <div className="d-flex justify-content-between mt-3">
+          <button className="btn btn-secondary" type="button" onClick={() => navigate('/dashboard')}>
+            Voltar
+          </button>
+          <button className="btn btn-primary" type="submit">
+            Cadastrar
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
