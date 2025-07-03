@@ -110,11 +110,11 @@ export default function AnimalList() {
 
                   {(userTipo === 'admin' || userTipo === 'ong') && (
                     <div className="mt-auto d-flex gap-2">
-                      <button className="btn btn-warning" onClick={() => editarAnimal(animal.id)}>
+                      <button className="btn btn-sm btn-outline-primary" onClick={() => editarAnimal(animal.id)}>
                         Editar
                       </button>
-                      <button className="btn btn-danger" onClick={() => deletarAnimal(animal.id)}>
-                        Deletar
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => deletarAnimal(animal.id)}>
+                        Excluir
                       </button>
                     </div>
                   )}

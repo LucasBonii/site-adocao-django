@@ -24,14 +24,15 @@ class AnimalSerializer(serializers.ModelSerializer):
         read_only_fields = ['ong']
 
 class CandidaturaSerializer(serializers.ModelSerializer):
-    animal = serializers.SerializerMethodField()
+    animal = serializers.PrimaryKeyRelatedField(queryset=Animal.objects.all(), write_only=True)
+    animal_info = serializers.SerializerMethodField(read_only=True)
     adotante = serializers.SerializerMethodField()
     class Meta:
         model = Candidatura
-        fields = ['id', 'animal', 'justificativa', 'status', 'data_candidatura', 'adotante']
+        fields = ['id', 'animal', 'justificativa', 'status', 'data_candidatura', 'adotante', 'animal_info']
         read_only_fields = ['status', 'data_candidatura']
 
-    def get_animal(self, obj):
+    def get_animal_info(self, obj):
         return {
             'id': obj.animal.id,
             'nome': obj.animal.nome

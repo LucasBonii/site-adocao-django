@@ -80,7 +80,7 @@ export default function EditarAnimal() {
           <textarea name="descricao" className="form-control" value={form.descricao} onChange={handleChange} />
         </div>
         <button type="submit" className="btn btn-primary">Salvar</button>
-        <button type="button" className="btn btn-secondary ms-2" onClick={() => navigate(-1)}>Cancelar</button>
+        <button type="button" className="btn btn-secondary ms-2" onClick={() => navigate('/animais')}>Cancelar</button>
       </form>
     </div>
   );

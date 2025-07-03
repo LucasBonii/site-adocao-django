@@ -92,7 +92,7 @@ export default function EditarUsuario() {
       <button className="btn btn-primary me-2" onClick={handleSalvar} disabled={salvando}>
         {salvando ? 'Salvando...' : 'Salvar Alterações'}
       </button>
-      <button className="btn btn-secondary" onClick={() => navigate('/gerenciar-usuarios')}>
+      <button className="btn btn-secondary" onClick={() => navigate('/usuarios')}>
         Cancelar
       </button>
     </div>

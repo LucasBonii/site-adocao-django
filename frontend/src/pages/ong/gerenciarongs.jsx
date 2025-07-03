@@ -29,6 +29,24 @@ export default function GerenciarOngs() {
     navigate(`/ong/editar/${id}`);
   };
 
+  const deletarOng = (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta ONG?')) return;
+
+    const token = localStorage.getItem('access');
+    axios.delete(`http://localhost:8000/api/ongs/${id}/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(() => {
+      setOngs(ongs.filter(ong => ong.id !== id));
+      alert('ONG excluída com sucesso.');
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Erro ao excluir ONG.');
+    });
+  };
+
+
   if (loading) return <p>Carregando ONGs...</p>;
 
   return (
@@ -47,11 +65,16 @@ export default function GerenciarOngs() {
           {ongs.map(ong => (
             <li key={ong.id} className="list-group-item d-flex justify-content-between align-items-center">
               <div>
-                <strong>{ong.descricao}</strong> — {ong.email} — {ong.cnpj}
+                <strong>{ong.nome}</strong> —  {ong.descricao} - {ong.email}
               </div>
-              <button className="btn btn-sm btn-outline-primary" onClick={() => editarOng(ong.id)}>
-                Editar
-              </button>
+              <div className="d-flex gap-2">
+                <button className="btn btn-sm btn-outline-primary" onClick={() => editarOng(ong.id)}>
+                  Editar
+                </button>
+                <button className="btn btn-sm btn-outline-danger" onClick={() => deletarOng(ong.id)}>
+                  Excluir
+                </button>
+              </div>
             </li>
           ))}
         </ul>

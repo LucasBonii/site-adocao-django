@@ -4,37 +4,172 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Visitas() {
   const [visitas, setVisitas] = useState([]);
+  const [userTipo, setUserTipo] = useState(null);
+  const [modoEdicao, setModoEdicao] = useState(null); // visita sendo editada
+  const [formData, setFormData] = useState({
+    tutor_nome: '',
+    animal_nome: '',
+    observacoes: '',
+    data: ''
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('access');
 
-    axios.get('http://localhost:8000/api/visitas/', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(res => {
-      setVisitas(res.data);
-    })
-    .catch(err => {
-      console.error(err);
-      navigate('/dashboard');
+    async function fetchData() {
+      try {
+        const resUser = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserTipo(resUser.data.tipo);
+
+        const resVisitas = await axios.get('http://localhost:8000/api/visitas/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setVisitas(resVisitas.data);
+      } catch (err) {
+        console.error(err);
+        navigate('/dashboard');
+      }
+    }
+    fetchData();
+  }, [navigate]);
+
+  const iniciarEdicao = (visita) => {
+    setModoEdicao(visita);
+    setFormData({
+      tutor_nome: visita.tutor_nome,
+      animal_nome: visita.animal_nome,
+      observacoes: visita.observacoes || '',
+      data: visita.data
     });
-  }, []);
+  };
+
+  const cancelarEdicao = () => {
+    setModoEdicao(null);
+    setFormData({ tutor_nome: '', animal_nome: '', observacoes: '', data: '' });
+  };
+
+  const salvarEdicao = async () => {
+    const token = localStorage.getItem('access');
+    try {
+      await axios.put('http://localhost:8000/api/visitas/', {
+        tutor_nome_antigo: modoEdicao.tutor_nome,
+        animal_nome_antigo: modoEdicao.animal_nome,
+        data_antiga: modoEdicao.data,
+        ...formData
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const novasVisitas = visitas.map((v) =>
+        v === modoEdicao ? { ...formData } : v
+      );
+      setVisitas(novasVisitas);
+      cancelarEdicao();
+      alert('Visita editada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao editar visita.');
+    }
+  };
+
+  const deletarVisita = async (visita) => {
+    if (!window.confirm('Tem certeza que deseja deletar esta visita?')) return;
+
+    const token = localStorage.getItem('access');
+    try {
+      await axios.delete('http://localhost:8000/api/visitas/', {
+        headers: { Authorization: `Bearer ${token}` },
+        data: {
+          tutor_nome: visita.tutor_nome,
+          animal_nome: visita.animal_nome,
+          data: visita.data
+        }
+      });
+
+      setVisitas(visitas.filter((v) => v !== visita));
+      alert('Visita deletada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao deletar visita.');
+    }
+  };
 
   return (
-    <div>
-      <h1>Minhas Visitas</h1>
-      <ul>
-        {visitas.map((v, index) => (
-          <li key={index}>
-            {v.tutor_nome} visitou {v.animal_nome} em {v.data}
-            <br />
-            {v.observacoes && `Obs: ${v.observacoes}`}
-          </li>
-        ))}
-      </ul>
+    <div className="container py-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1>Minhas Visitas</h1>
+        <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
+          Voltar à Dashboard
+        </button>
+      </div>
+
+      {visitas.length === 0 ? (
+        <p>Nenhuma visita encontrada.</p>
+      ) : (
+        <ul className="list-group">
+          {visitas.map((v) => (
+            <li key={`${v.tutor_nome}-${v.animal_nome}-${v.data}`} className="list-group-item">
+              {modoEdicao === v ? (
+                <div>
+                  <input
+                    className="form-control mb-2"
+                    value={formData.tutor_nome}
+                    onChange={(e) => setFormData({ ...formData, tutor_nome: e.target.value })}
+                    placeholder="Tutor"
+                  />
+                  <input
+                    className="form-control mb-2"
+                    value={formData.animal_nome}
+                    onChange={(e) => setFormData({ ...formData, animal_nome: e.target.value })}
+                    placeholder="Animal"
+                  />
+                  <input
+                    className="form-control mb-2"
+                    value={formData.data}
+                    onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+                    placeholder="Data"
+                  />
+                  <textarea
+                    className="form-control mb-2"
+                    value={formData.observacoes}
+                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    placeholder="Observações"
+                  ></textarea>
+                  <div className="d-flex gap-2">
+                    <button className="btn btn-success btn-sm" onClick={salvarEdicao}>Salvar</button>
+                    <button className="btn btn-secondary btn-sm" onClick={cancelarEdicao}>Cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="d-flex justify-content-between flex-column flex-md-row">
+                  <div>
+                    <strong>{v.tutor_nome}</strong> visitou <strong>{v.animal_nome}</strong> em <em>{v.data}</em>
+                    {v.observacoes && (
+                      <>
+                        <br /><small>Obs: {v.observacoes}</small>
+                      </>
+                    )}
+                  </div>
+                  {(userTipo === 'admin' || userTipo === 'ong') && (
+                    <div className="mt-2 mt-md-0 d-flex gap-2">
+                      <button className="btn btn-sm btn-outline-primary" onClick={() => iniciarEdicao(v)}>
+                        Editar
+                      </button>
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => deletarVisita(v)}>
+                        Excluir
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

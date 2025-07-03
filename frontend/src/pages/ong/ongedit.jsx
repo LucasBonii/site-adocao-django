@@ -5,10 +5,13 @@ import axios from 'axios';
 export default function OngEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [ong, setOng] = useState(null);
+
+
+  const [nome, setNome] = useState('');
   const [cnpj, setCnpj] = useState('');
   const [descricao, setDescricao] = useState('');
   const [email, setEmail] = useState('');
+  const [ong, setOng] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -19,6 +22,7 @@ export default function OngEdit() {
     })
     .then(res => {
       setOng(res.data);
+      setNome(res.data.nome || '');        
       setCnpj(res.data.cnpj || '');
       setDescricao(res.data.descricao || '');
       setEmail(res.data.user?.email || '');
@@ -33,6 +37,7 @@ export default function OngEdit() {
     const token = localStorage.getItem('access');
 
     axios.put(`http://localhost:8000/api/ongs/${id}/`, {
+      nome,            
       cnpj,
       descricao,
       user: ong.user
@@ -51,8 +56,6 @@ export default function OngEdit() {
     });
   };
 
-  const voltar = () => navigate('/gerenciar-ongs');
-
   if (!ong) return <p>Carregando...</p>;
 
   return (
@@ -62,6 +65,18 @@ export default function OngEdit() {
         <div className="mb-3">
           <label className="form-label">Email do responsável</label>
           <input type="email" className="form-control" value={email} disabled />
+        </div>
+
+
+        <div className="mb-3">
+          <label className="form-label">Nome</label>
+          <input
+            type="text"
+            className="form-control"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            required
+          />
         </div>
 
         <div className="mb-3">
@@ -86,8 +101,8 @@ export default function OngEdit() {
         </div>
 
         <div className="d-flex justify-content-between">
-          <button type="button" className="btn btn-secondary" onClick={voltar}>
-            Voltar
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/ongs')}>
+            Cancelar
           </button>
           <button type="submit" className="btn btn-primary">
             Salvar

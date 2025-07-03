@@ -9,9 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 
 
-
 class VisitaAPIView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def _get_mongo_collection(self):
@@ -19,37 +17,25 @@ class VisitaAPIView(APIView):
         db = client["adocao_nosql"]
         return db.visitas
 
-    @swagger_auto_schema(
-        operation_description="Lista visitas registradas no MongoDB pela ONG logada",
-        responses={200: 'Lista de visitas'}
-    )
     def get(self, request):
         user = request.user
-        if user.tipo != 'ong':
-            raise PermissionDenied("Apenas ONGs podem acessar esta rota.")
+        if user.tipo not in ['ong', 'admin']:
+            raise PermissionDenied("Apenas ONGs ou administradores podem acessar esta rota.")
 
         try:
             visitas_collection = self._get_mongo_collection()
-            visitas = list(visitas_collection.find(
-                {"ong_id": str(user.id)}, {"_id": 0}
-            ))
+
+            if user.tipo == 'ong':
+                visitas = list(visitas_collection.find(
+                    {"ong_id": str(user.id)}, {"_id": 0}
+                ))
+            else:  # admin
+                visitas = list(visitas_collection.find({}, {"_id": 0}))
+
             return Response(visitas)
         except Exception as e:
             return Response({"erro": str(e)}, status=500)
 
-    @swagger_auto_schema(
-        operation_description="Registra uma nova visita",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=["tutor_nome", "animal_nome"],
-            properties={
-                'tutor_nome': openapi.Schema(type=openapi.TYPE_STRING, description='Nome do tutor'),
-                'animal_nome': openapi.Schema(type=openapi.TYPE_STRING, description='Nome do animal'),
-                'observacoes': openapi.Schema(type=openapi.TYPE_STRING, description='Observações (opcional)'),
-            },
-        ),
-        responses={201: 'Visita registrada'}
-    )
     def post(self, request):
         user = request.user
         if user.tipo != 'ong':
@@ -60,13 +46,77 @@ class VisitaAPIView(APIView):
             "animal_nome": request.data.get("animal_nome"),
             "observacoes": request.data.get("observacoes", ""),
             "data": date.today().isoformat(),
-            "ong_id": str(user.id),  
-            "ong_email": user.email,  
+            "ong_id": str(user.id),
+            "ong_email": user.email,
         }
 
         try:
-            visitas_collection = self._get_mongo_collection()
-            visitas_collection.insert_one(data)
+            self._get_mongo_collection().insert_one(data)
             return Response({"mensagem": "Visita registrada com sucesso!"}, status=201)
         except Exception as e:
             return Response({"erro": str(e)}, status=500)
+
+    def delete(self, request):
+        user = request.user
+        if user.tipo not in ['ong', 'admin']:
+            raise PermissionDenied("Apenas ONGs ou administradores podem deletar visitas.")
+
+        tutor_nome = request.data.get("tutor_nome")
+        animal_nome = request.data.get("animal_nome")
+        data_visita = request.data.get("data")
+
+        if not tutor_nome or not animal_nome or not data_visita:
+            return Response({"erro": "Dados incompletos."}, status=400)
+
+        query = {
+            "tutor_nome": tutor_nome,
+            "animal_nome": animal_nome,
+            "data": data_visita
+        }
+
+        if user.tipo == 'ong':
+            query["ong_id"] = str(user.id)
+
+        result = self._get_mongo_collection().delete_one(query)
+
+        if result.deleted_count == 0:
+            return Response({"erro": "Visita não encontrada."}, status=404)
+
+        return Response({"mensagem": "Visita deletada com sucesso."}, status=200)
+
+    def put(self, request):
+        user = request.user
+        if user.tipo != 'ong':
+            raise PermissionDenied("Apenas ONGs podem editar visitas.")
+
+        # Identificação da visita antiga
+        tutor_nome_antigo = request.data.get("tutor_nome_antigo")
+        animal_nome_antigo = request.data.get("animal_nome_antigo")
+        data_antiga = request.data.get("data_antiga")
+
+        if not tutor_nome_antigo or not animal_nome_antigo or not data_antiga:
+            return Response({"erro": "Campos de identificação ausentes."}, status=400)
+
+        filtro = {
+            "tutor_nome": tutor_nome_antigo,
+            "animal_nome": animal_nome_antigo,
+            "data": data_antiga,
+            "ong_id": str(user.id)
+        }
+
+        
+        novos_dados = {
+            "tutor_nome": request.data.get("tutor_nome"),
+            "animal_nome": request.data.get("animal_nome"),
+            "observacoes": request.data.get("observacoes", ""),
+            "data": request.data.get("data"),  # pode vir igual ou nova
+            "ong_id": str(user.id),
+            "ong_email": user.email,
+        }
+
+        result = self._get_mongo_collection().update_one(filtro, {"$set": novos_dados})
+
+        if result.matched_count == 0:
+            return Response({"erro": "Visita não encontrada."}, status=404)
+
+        return Response({"mensagem": "Visita atualizada com sucesso."}, status=200)

@@ -90,7 +90,7 @@ export default function EditarVisita() {
       <button className="btn btn-primary me-2" onClick={handleSalvar} disabled={salvando}>
         {salvando ? 'Salvando...' : 'Salvar Alterações'}
       </button>
-      <button className="btn btn-secondary" onClick={() => navigate('/gerenciar-visitas')}>
+      <button className="btn btn-secondary" onClick={() => navigate('/visitas')}>
         Cancelar
       </button>
     </div>

@@ -39,7 +39,11 @@ class AnimalViewSet(viewsets.ModelViewSet):
         if user.tipo == 'admin':
             return Animal.objects.all()
         elif user.tipo == 'ong':
-            return Animal.objects.filter(ong=user)
+            try:
+                ong = Ong.objects.get(usuario=user)
+                return Animal.objects.filter(ong=ong)
+            except Ong.DoesNotExist:
+                return Animal.objects.none()
         elif user.tipo == 'tutor':
             return Animal.objects.filter(status='Disponível')
         return Animal.objects.none()
@@ -77,7 +81,7 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
         elif user.tipo == 'ong':
             return Candidatura.objects.filter(animal__ong__usuario=user)
         
-        elif user.tipo == 'ong':
+        elif user.tipo == 'admin':
             return Candidatura.objects.all()
         
         return Candidatura.objects.all()

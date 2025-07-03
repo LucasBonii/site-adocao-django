@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 
 export default function Candidaturas() {
   const [candidaturas, setCandidaturas] = useState([]);
   const [userTipo, setUserTipo] = useState('');
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -47,12 +45,30 @@ export default function Candidaturas() {
     }).catch(() => alert('Erro ao rejeitar.'));
   };
 
+  const handleDelete = (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta candidatura?')) return;
+
+    const token = localStorage.getItem('access');
+    axios.delete(`http://localhost:8000/api/candidaturas/${id}/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(() => {
+      setCandidaturas(candidaturas.filter(c => c.id !== id));
+      alert('Candidatura excluída com sucesso.');
+    })
+    .catch(() => alert('Erro ao excluir candidatura.'));
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/candidaturas/editar/${id}`);
+  };
+
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Minhas Candidaturas</h2>
         <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
-            Voltar
+          Voltar
         </button>
       </div>
 
@@ -66,7 +82,7 @@ export default function Candidaturas() {
                 <div className="card-body">
                   {userTipo === 'tutor' && (
                     <>
-                      <h5 className="card-title">{c.animal.nome}</h5>
+                      <h5 className="card-title">{c.animal_info.nome}</h5>
                       <p className="card-text">
                         <strong>Data:</strong> {new Date(c.data_candidatura).toLocaleDateString()}<br />
                         <strong>Status:</strong> {c.status}
@@ -76,7 +92,7 @@ export default function Candidaturas() {
 
                   {userTipo === 'ong' && (
                     <>
-                      <h5 className="card-title">{c.animal.nome}</h5>
+                      <h5 className="card-title">{c.animal_info.nome}</h5>
                       <p className="card-text">
                         <strong>Adotante:</strong> {c.adotante.username}<br />
                         <strong>Data:</strong> {new Date(c.data_candidatura).toLocaleDateString()}<br />
@@ -84,7 +100,7 @@ export default function Candidaturas() {
                       </p>
 
                       {c.status === 'pendente' && (
-                        <div className="d-flex gap-2">
+                        <div className="d-flex gap-2 mb-2">
                           <button className="btn btn-success btn-sm" onClick={() => aprovarCandidatura(c.id)}>
                             Aprovar
                           </button>
@@ -93,8 +109,38 @@ export default function Candidaturas() {
                           </button>
                         </div>
                       )}
+
+                      <div className="d-flex gap-2">
+                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleEdit(c.id)}>
+                          Editar
+                        </button>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(c.id)}>
+                          Excluir
+                        </button>
+                      </div>
                     </>
                   )}
+
+                  {userTipo === 'admin' && (
+                    <>
+                      <h5 className="card-title">{c.animal_info.nome}</h5>
+                      <p className="card-text">
+                        <strong>Adotante:</strong> {c.adotante.username}<br />
+                        <strong>Data:</strong> {new Date(c.data_candidatura).toLocaleDateString()}<br />
+                        <strong>Status:</strong> {c.status}
+                      </p>
+
+                      <div className="d-flex gap-2">
+                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleEdit(c.id)}>
+                          Editar
+                        </button>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(c.id)}>
+                          Excluir
+                        </button>
+                      </div>
+                    </>
+                  )}
+
                 </div>
               </div>
             </div>

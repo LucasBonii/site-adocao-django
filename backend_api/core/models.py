@@ -18,10 +18,11 @@ class Usuario(AbstractUser):
 class Ong(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     cnpj = models.CharField(max_length=20)
-    descricao = models.TextField()
+    nome = models.CharField(max_length=80)
+    descricao = models.TextField(max_length=200)
 
     def __str__(self):
-        return self.descricao
+        return f'{self.nome} - {self.cnpj}'
 
 class Animal(models.Model):
     nome = models.CharField(max_length=100)

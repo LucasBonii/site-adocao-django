@@ -79,7 +79,7 @@ export default function EditarTutorAnimal() {
       <button className="btn btn-primary me-2" onClick={handleSalvar} disabled={salvando}>
         {salvando ? 'Salvando...' : 'Salvar Alterações'}
       </button>
-      <button className="btn btn-secondary" onClick={() => navigate('/gerenciar-tutores-animais')}>
+      <button className="btn btn-secondary" onClick={() => navigate('/meus-animais-adotados')}>
         Cancelar
       </button>
     </div>
