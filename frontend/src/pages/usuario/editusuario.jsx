@@ -35,12 +35,12 @@ export default function EditarUsuario() {
   const handleSalvar = () => {
     const token = localStorage.getItem('access');
     setSalvando(true);
-    axios.put(`http://localhost:8000/api/usuarios/${id}/`, usuario, {
+    axios.patch(`http://localhost:8000/api/usuarios/${id}/`, usuario, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
-    .then(() => navigate('/gerenciar-usuarios'))
+    .then(() => navigate('/usuarios'))
     .catch(err => {
       console.error(err);
       setErro('Erro ao salvar alterações');

@@ -41,7 +41,7 @@ export default function EditarTutorAnimal() {
         Authorization: `Bearer ${token}`
       }
     })
-    .then(() => navigate('/gerenciar-tutores-animais'))
+    .then(() => navigate('/meus-animais-adotados'))
     .catch(() => {
       setErro('Erro ao salvar alterações');
       setSalvando(false);
@@ -62,16 +62,6 @@ export default function EditarTutorAnimal() {
           className="form-control"
           name="data_inicio_responsabilidade"
           value={registro.data_inicio_responsabilidade}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Observações</label>
-        <textarea
-          className="form-control"
-          name="observacoes"
-          value={registro.observacoes}
           onChange={handleChange}
         />
       </div>

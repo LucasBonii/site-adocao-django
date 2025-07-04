@@ -9,7 +9,7 @@ export default function AnimalCreate() {
   const [sexo, setSexo] = useState('');
   const [idade, setIdade] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [status, setStatus] = useState('Disponível');
+  const [status, setStatus] = useState('disponivel');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
@@ -33,6 +33,7 @@ export default function AnimalCreate() {
       alert('Animal cadastrado com sucesso!');
       navigate('/animais');
     } catch (err) {
+      console.error(err);
       setErro('Erro ao cadastrar animal. Verifique os dados.');
     }
   };
@@ -66,13 +67,16 @@ export default function AnimalCreate() {
           value={porte}
           onChange={(e) => setPorte(e.target.value)}
         />
-        <input
-          type="text"
+        <select
           className="form-control"
-          placeholder="Sexo"
           value={sexo}
           onChange={(e) => setSexo(e.target.value)}
-        />
+          required
+        >
+          <option value="">Sexo</option>
+          <option value="M">Macho</option>
+          <option value="F">Fêmea</option>
+        </select>
         <input
           type="number"
           className="form-control"
@@ -91,8 +95,8 @@ export default function AnimalCreate() {
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
-          <option value="Disponível">Disponível</option>
-          <option value="Adotado">Adotado</option>
+          <option value="disponivel">Disponível</option>
+          <option value="indisponivel">Indisponível</option>
         </select>
 
         <div className="d-flex justify-content-between mt-3">

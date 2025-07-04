@@ -48,7 +48,7 @@ export default function OngEdit() {
     })
     .then(() => {
       alert('ONG atualizada com sucesso!');
-      navigate('/gerenciar-ongs');
+      navigate('/dashboard');
     })
     .catch(err => {
       console.error('Erro ao atualizar ONG:', err);

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Visitas() {
   const [visitas, setVisitas] = useState([]);
   const [userTipo, setUserTipo] = useState(null);
-  const [modoEdicao, setModoEdicao] = useState(null); // visita sendo editada
+  const [modoEdicao, setModoEdicao] = useState(null); 
   const [formData, setFormData] = useState({
     tutor_nome: '',
     animal_nome: '',
@@ -36,6 +36,7 @@ export default function Visitas() {
     }
     fetchData();
   }, [navigate]);
+
 
   const iniciarEdicao = (visita) => {
     setModoEdicao(visita);
@@ -98,21 +99,91 @@ export default function Visitas() {
     }
   };
 
+  const salvarNovaVisita = async () => {
+    const token = localStorage.getItem('access');
+
+    if (!formData.tutor_nome || !formData.animal_nome || !formData.data) {
+      alert('Preencha tutor, animal e data');
+      return;
+    }
+
+    try {
+      const res = await axios.post('http://localhost:8000/api/visitas/', formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setVisitas([...visitas, res.data]);
+      cancelarEdicao();
+      alert('Visita cadastrada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao cadastrar visita.');
+    }
+  };
+
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Minhas Visitas</h1>
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
-          Voltar à Dashboard
-        </button>
+        <div>
+          <button className="btn btn-success me-2" onClick={() => setModoEdicao('novo')}>
+            Nova Visita
+          </button>
+          <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
+            Voltar à Dashboard
+          </button>
+        </div>
       </div>
+
+      {modoEdicao === 'novo' && (
+        <div className="card p-3 mb-4">
+          <h5>Nova Visita</h5>
+          <input
+            className="form-control mb-2"
+            value={formData.tutor_nome}
+            onChange={(e) => setFormData({ ...formData, tutor_nome: e.target.value })}
+            placeholder="Tutor"
+          />
+          <input
+            className="form-control mb-2"
+            value={formData.animal_nome}
+            onChange={(e) => setFormData({ ...formData, animal_nome: e.target.value })}
+            placeholder="Animal"
+          />
+          <input
+            type="date"
+            className="form-control mb-2"
+            value={formData.data}
+            onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+            placeholder="Data"
+          />
+          <textarea
+            className="form-control mb-2"
+            value={formData.observacoes}
+            onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+            placeholder="Observações"
+          />
+          <div className="d-flex gap-2">
+            <button className="btn btn-success btn-sm" onClick={salvarNovaVisita}>
+              Salvar
+            </button>
+            <button className="btn btn-secondary btn-sm" onClick={cancelarEdicao}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {visitas.length === 0 ? (
         <p>Nenhuma visita encontrada.</p>
       ) : (
         <ul className="list-group">
           {visitas.map((v) => (
-            <li key={`${v.tutor_nome}-${v.animal_nome}-${v.data}`} className="list-group-item">
+            <li
+              key={`${v.tutor_nome}-${v.animal_nome}-${v.data}`}
+              className="list-group-item"
+            >
               {modoEdicao === v ? (
                 <div>
                   <input

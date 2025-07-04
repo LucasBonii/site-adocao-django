@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
-from rest_framework.exceptions import ValidationError, PermissionDenied
 from .permissions import IsOng, IsTutor, IsOngDonaDoAnimal
 from django.utils import timezone
 
@@ -21,7 +20,11 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 class OngViewSet(viewsets.ModelViewSet):
     queryset = Ong.objects.all()
     serializer_class = OngSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOng]
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+
 
 class AnimalViewSet(viewsets.ModelViewSet):
     queryset = Animal.objects.all()
@@ -29,11 +32,9 @@ class AnimalViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            permission_classes = [IsOng]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [p() for p in permission_classes]
-    
+            return [IsAuthenticated(), IsOng()]
+        return [IsAuthenticated()]
+
     def get_queryset(self):
         user = self.request.user
         if user.tipo == 'admin':
@@ -45,7 +46,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
             except Ong.DoesNotExist:
                 return Animal.objects.none()
         elif user.tipo == 'tutor':
-            return Animal.objects.filter(status='Disponível')
+            return Animal.objects.filter(status='disponivel')
         return Animal.objects.none()
 
     def perform_create(self, serializer):
@@ -59,15 +60,13 @@ class AnimalViewSet(viewsets.ModelViewSet):
 class CandidaturaViewSet(viewsets.ModelViewSet):
     queryset = Candidatura.objects.all()
     serializer_class = CandidaturaSerializer
-    
+
     def get_permissions(self):
         if self.action == 'create':
-            permission_classes = [IsTutor]
+            return [IsTutor()] 
         elif self.action in ['aprovar', 'rejeitar']:
-            permission_classes = [IsOngDonaDoAnimal]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [p() for p in permission_classes]
+            return [IsOngDonaDoAnimal()] 
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         user = self.request.user
@@ -77,18 +76,15 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
 
         if user.tipo == 'tutor':
             return Candidatura.objects.filter(adotante=user)
-
         elif user.tipo == 'ong':
             return Candidatura.objects.filter(animal__ong__usuario=user)
-        
         elif user.tipo == 'admin':
             return Candidatura.objects.all()
-        
-        return Candidatura.objects.all()
-    
+
+        return Candidatura.objects.none()
+
     def perform_create(self, serializer):
         serializer.save(adotante=self.request.user)
-
 
     @action(detail=True, methods=['patch'], url_path='aprovar')
     def aprovar(self, request, pk=None):
@@ -100,15 +96,18 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
         candidatura.status = 'aprovada'
         candidatura.save()
 
+        animal_adotado = candidatura.animal
+        animal_adotado.status = 'indisponivel'
+        animal_adotado.save()
+
         TutorAnimal.objects.create(
             tutor=candidatura.adotante,
             animal=candidatura.animal,
-            data_inicio_responsabilidade=timezone.now(),  
-            observacoes=''
+            data_inicio_responsabilidade=timezone.now(),
         )
 
         return Response({'detail': 'Candidatura aprovada com sucesso.'})
-    
+
     @action(detail=True, methods=['patch'], url_path='rejeitar')
     def rejeitar(self, request, pk=None):
         candidatura = self.get_object()
@@ -121,22 +120,32 @@ class CandidaturaViewSet(viewsets.ModelViewSet):
 
         return Response({'detail': 'Candidatura rejeitada com sucesso.'})
 
+
 class TutorAnimalViewSet(viewsets.ModelViewSet):
     queryset = TutorAnimal.objects.all()
     serializer_class = TutorAnimalSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTutor] 
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def me_view(request):
     user = request.user
-    return Response({
+
+    data = {
         'id': user.id,
         'username': user.username,
-        'tipo': user.tipo,
         'email': user.email,
-    })
+        'tipo': user.tipo,
+    }
+
+    if user.tipo == 'ong':
+        ong = Ong.objects.filter(usuario=user).first()
+        if ong:
+            data['ong'] = OngSerializer(ong).data
+        else:
+            data['ong'] = None
+    return Response(data)
 
 
 @api_view(['GET'])
@@ -151,6 +160,7 @@ def meus_animais_adotados(request):
     data = [{
         'id': ta.animal.id,
         'nome': ta.animal.nome,
+        'tutor_animal_id': ta.id,
         'especie': ta.animal.especie,
         'porte': ta.animal.porte,
         'sexo': ta.animal.sexo,
@@ -158,7 +168,6 @@ def meus_animais_adotados(request):
         'descricao': ta.animal.descricao,
         'data_inicio_responsabilidade': ta.data_inicio_responsabilidade,
         'tutor_id': ta.tutor.id,
-        'observacoes': ta.observacoes,
     } for ta in tutor_animais]
 
     return Response(data)

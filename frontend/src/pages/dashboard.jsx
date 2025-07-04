@@ -13,7 +13,10 @@ export default function Dashboard() {
       axios.get('http://localhost:8000/api/me/', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => setUser(res.data))
+      .then(res => {
+        console.log("Resposta do /api/me/:", res.data);
+        setUser(res.data);
+      })
       .catch(err => console.error('Erro ao buscar dados do usuário', err));
     }
   }, []);
@@ -25,13 +28,29 @@ export default function Dashboard() {
   };
 
 
+  const deletarOng = async (ongId) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta ONG?')) return;
+
+    const token = localStorage.getItem('access');
+    try {
+      await axios.delete(`http://localhost:8000/api/ongs/${ongId}/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('ONG excluída com sucesso.');
+      setUser(prev => ({ ...prev, ong: null }));
+    } catch (error) {
+      console.error('Erro ao excluir ONG:', error);
+      alert('Erro ao excluir ONG.');
+    }
+  };
+
   const goToAnimais = () => navigate('/animais');
   const goToOngs = () => navigate('/ongs');
   const goToUsuarios = () => navigate('/usuarios');
   const goToVisitas = () => navigate('/visitas');
   const goToCandidaturas = () => navigate('/candidaturas');
 
-  if (!user) return <p className="text-center mt-5">Carregando...</p>;
+  if (!user) return navigate('/login');;
 
   return (
     <div className="container py-5 position-relative">
@@ -121,32 +140,98 @@ export default function Dashboard() {
           </>
         )}
 
-
         {user.tipo === 'ong' && (
           <>
-            <div className="col-md-4">
-              <div className="card shadow-sm h-100">
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <h5 className="card-title">Meus Animais</h5>
-                  <p className="card-text">Visualize os animais cadastrados pela sua ONG.</p>
-                  <button className="btn btn-primary mt-auto" onClick={goToAnimais}>
-                    Ver meus animais
-                  </button>
+            {user.ong ? (
+              <>
+                <div className="col-md-6">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">Meus Animais</h5>
+                      <p className="card-text">Visualize os animais cadastrados pela sua ONG.</p>
+                      <button className="btn btn-dark mt-auto" onClick={goToAnimais}>
+                        Ver meus animais
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="col-md-4">
-              <div className="card shadow-sm h-100">
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <h5 className="card-title">Cadastrar Animal</h5>
-                  <p className="card-text">Adicione um novo animal para adoção.</p>
-                  <button className="btn btn-success mt-auto" onClick={() => navigate('/animais/novo')}>
-                    Cadastrar animal
-                  </button>
+                <div className="col-md-6">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">Gerenciar Visitas</h5>
+                      <p className="card-text">Veja e controle as visitas registradas.</p>
+                      <button className="btn btn-dark mt-auto" onClick={() => navigate('/visitas')}>
+                        Ver visitas
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">Gerenciar Candidaturas</h5>
+                      <p className="card-text">Veja as candidaturas relacionadas aos seus animais.</p>
+                      <button className="btn btn-dark mt-auto" onClick={() => navigate('/candidaturas')}>
+                        Ver candidaturas
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">Cadastrar Animal</h5>
+                      <p className="card-text">Adicione um novo animal para adoção.</p>
+                      <button className="btn btn-success mt-auto" onClick={() => navigate('/animais/novo')}>
+                        Cadastrar animal
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">Editar ONG</h5>
+                      <p className="card-text">Atualize os dados da sua ONG.</p>
+                      <button className="btn btn-outline-primary mt-auto" onClick={() => navigate(`/ong/editar/${user.ong.id}`)}>
+                        Editar ONG
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column justify-content-between">
+                      <h5 className="card-title">Excluir ONG</h5>
+                      <p className="card-text">Remova sua ONG do sistema.</p>
+                      <button
+                        className="btn btn-outline-danger mt-auto"
+                        onClick={() => deletarOng(user.ong.id)}
+                      >
+                        Excluir ONG
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="col-md-6">
+                <div className="card shadow-sm h-100">
+                  <div className="card-body d-flex flex-column justify-content-between">
+                    <h5 className="card-title">Criar ONG</h5>
+                    <p className="card-text">Cadastre sua ONG para começar a divulgar animais.</p>
+                    <button className="btn btn-primary mt-auto" onClick={() => navigate('/ong/nova')}>
+                      Criar ONG
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </>
         )}
 

@@ -36,8 +36,8 @@ export default function AnimaisAdotados() {
     });
   };
 
-  const handleEdit = (id) => {
-    navigate(`/animais/editar/${id}`);
+  const handleEdit = (tutorAnimalId) => {
+    navigate(`/tutor-animal/editar/${tutorAnimalId}`);
   };
 
   if (animais.length === 0) {
@@ -63,7 +63,7 @@ export default function AnimaisAdotados() {
 
       <div className="row g-4">
         {animais.map(animal => (
-          <div className="col-md-4" key={animal.id}>
+          <div className="col-md-4" key={animal.tutor_animal_id}>
             <div className="card h-100 shadow-sm">
               <div className="card-body d-flex flex-column justify-content-between">
                 <div>
@@ -74,15 +74,14 @@ export default function AnimaisAdotados() {
                     <strong>Idade:</strong> {animal.idade} anos<br />
                     <strong>Desde:</strong>{' '}
                     {new Date(animal.data_inicio_responsabilidade).toLocaleDateString('pt-BR')}<br />
-                    <strong>Observações:</strong> {animal.observacoes || 'Nenhuma'}
                   </p>
                 </div>
 
                 <div className="mt-3 d-flex justify-content-between">
-                  <button className="btn btn-warning" onClick={() => handleEdit(animal.id)}>
+                  <button  className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(animal.tutor_animal_id)}>
                     Editar
                   </button>
-                  <button className="btn btn-danger" onClick={() => handleDelete(animal.id)}>
+                  <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(animal.id)}>
                     Excluir
                   </button>
                 </div>

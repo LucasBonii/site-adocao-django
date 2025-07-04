@@ -85,6 +85,7 @@ export default function Candidaturas() {
                       <h5 className="card-title">{c.animal_info.nome}</h5>
                       <p className="card-text">
                         <strong>Data:</strong> {new Date(c.data_candidatura).toLocaleDateString()}<br />
+                        <strong>Justificativa:</strong> {c.justificativa}<br></br>
                         <strong>Status:</strong> {c.status}
                       </p>
                     </>
@@ -96,6 +97,7 @@ export default function Candidaturas() {
                       <p className="card-text">
                         <strong>Adotante:</strong> {c.adotante.username}<br />
                         <strong>Data:</strong> {new Date(c.data_candidatura).toLocaleDateString()}<br />
+                        <strong>Justificativa:</strong> {c.justificativa}<br />
                         <strong>Status:</strong> {c.status}
                       </p>
 
@@ -109,15 +111,6 @@ export default function Candidaturas() {
                           </button>
                         </div>
                       )}
-
-                      <div className="d-flex gap-2">
-                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleEdit(c.id)}>
-                          Editar
-                        </button>
-                        <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(c.id)}>
-                          Excluir
-                        </button>
-                      </div>
                     </>
                   )}
 
@@ -127,13 +120,11 @@ export default function Candidaturas() {
                       <p className="card-text">
                         <strong>Adotante:</strong> {c.adotante.username}<br />
                         <strong>Data:</strong> {new Date(c.data_candidatura).toLocaleDateString()}<br />
+                        <strong>Justificativa:</strong> {c.justificativa}<br />
                         <strong>Status:</strong> {c.status}
                       </p>
 
                       <div className="d-flex gap-2">
-                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleEdit(c.id)}>
-                          Editar
-                        </button>
                         <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(c.id)}>
                           Excluir
                         </button>

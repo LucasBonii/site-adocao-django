@@ -15,6 +15,7 @@ import OngEdit from './pages/ong/ongedit';
 import EditarUsuario from './pages/usuario/editusuario';
 import EditarTutorAnimal from './pages/tutor/edittutoranimal';
 import EditarVisita from './pages/ong/editvisita';
+import CadastrarOng from './pages/ong/criarong';
 const isAuthenticated = () => !!localStorage.getItem('access');
 
 export default function App() {
@@ -76,9 +77,10 @@ export default function App() {
         <Route path="/usuarios" element={isAuthenticated() ? <GerenciarUsuarios /> : <Navigate to="/login" />} />
 
         <Route path="/ongs" element={isAuthenticated() ? <GerenciarOngs /> : <Navigate to="/login" />} />
+        <Route path="/ong/nova" element={isAuthenticated() ? <CadastrarOng /> : <Navigate to="/login" />} />
+        <Route path="/ong/editar/:id" element={isAuthenticated() ? <OngEdit /> : <Navigate to="/login" />} />
 
         <Route path="/animais/editar/:id" element={isAuthenticated() ? <EditarAnimal /> : <Navigate to="/login" />} />
-        <Route path="/ong/editar/:id" element={isAuthenticated() ? <OngEdit /> : <Navigate to="/login" />} />
         <Route path="/usuario/editar/:id" element={isAuthenticated() ? <EditarUsuario /> : <Navigate to="/login" />} />
         <Route path="/tutor-animal/editar/:id" element={isAuthenticated() ? <EditarTutorAnimal /> : <Navigate to="/login" />} />
 

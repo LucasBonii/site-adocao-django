@@ -13,6 +13,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class OngSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='usuario.email', read_only=True)
+    usuario = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Ong
         fields = '__all__'

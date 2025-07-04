@@ -41,11 +41,14 @@ class VisitaAPIView(APIView):
         if user.tipo != 'ong':
             raise PermissionDenied("Apenas ONGs podem registrar visitas.")
 
+        data_enviada = request.data.get("data")
+        data_visita = data_enviada if data_enviada else date.today().isoformat()
+
         data = {
             "tutor_nome": request.data.get("tutor_nome"),
             "animal_nome": request.data.get("animal_nome"),
             "observacoes": request.data.get("observacoes", ""),
-            "data": date.today().isoformat(),
+            "data": data_visita,
             "ong_id": str(user.id),
             "ong_email": user.email,
         }
@@ -55,6 +58,7 @@ class VisitaAPIView(APIView):
             return Response({"mensagem": "Visita registrada com sucesso!"}, status=201)
         except Exception as e:
             return Response({"erro": str(e)}, status=500)
+
 
     def delete(self, request):
         user = request.user
@@ -89,7 +93,6 @@ class VisitaAPIView(APIView):
         if user.tipo != 'ong':
             raise PermissionDenied("Apenas ONGs podem editar visitas.")
 
-        # Identificação da visita antiga
         tutor_nome_antigo = request.data.get("tutor_nome_antigo")
         animal_nome_antigo = request.data.get("animal_nome_antigo")
         data_antiga = request.data.get("data_antiga")
@@ -109,7 +112,7 @@ class VisitaAPIView(APIView):
             "tutor_nome": request.data.get("tutor_nome"),
             "animal_nome": request.data.get("animal_nome"),
             "observacoes": request.data.get("observacoes", ""),
-            "data": request.data.get("data"),  # pode vir igual ou nova
+            "data": request.data.get("data"),  
             "ong_id": str(user.id),
             "ong_email": user.email,
         }

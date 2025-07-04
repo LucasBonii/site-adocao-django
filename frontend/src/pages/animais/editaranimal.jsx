@@ -11,7 +11,8 @@ export default function EditarAnimal() {
     porte: '',
     sexo: '',
     idade: '',
-    descricao: ''
+    descricao: '',
+    status: 'disponivel', 
   });
 
   useEffect(() => {
@@ -78,6 +79,13 @@ export default function EditarAnimal() {
         <div className="mb-3">
           <label>Descrição</label>
           <textarea name="descricao" className="form-control" value={form.descricao} onChange={handleChange} />
+        </div>
+        <div className="mb-3">
+          <label>Status</label>
+          <select name="status" className="form-control" value={form.status} onChange={handleChange} required>
+            <option value="disponivel">Disponível</option>
+            <option value="indisponivel">Indisponível</option>
+          </select>
         </div>
         <button type="submit" className="btn btn-primary">Salvar</button>
         <button type="button" className="btn btn-secondary ms-2" onClick={() => navigate('/animais')}>Cancelar</button>

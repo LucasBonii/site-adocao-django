@@ -25,13 +25,18 @@ class Ong(models.Model):
         return f'{self.nome} - {self.cnpj}'
 
 class Animal(models.Model):
+    STATUS_ANIMAL = (
+        ('disponivel', 'Disponível'),
+        ('indisponivel', 'Indisponível'),
+
+    )
     nome = models.CharField(max_length=100)
     especie = models.CharField(max_length=50)
     porte = models.CharField(max_length=50)
     sexo = models.CharField(max_length=10)
     idade = models.IntegerField()
     descricao = models.TextField()
-    status = models.CharField(max_length=50)
+    status = models.CharField(max_length=15, choices=STATUS_ANIMAL)
     ong = models.ForeignKey(Ong, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -61,7 +66,6 @@ class TutorAnimal(models.Model):
     tutor = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     animal = models.ForeignKey(Animal, on_delete=models.CASCADE)
     data_inicio_responsabilidade = models.DateField()
-    observacoes = models.TextField()
 
     def __str__(self):
         return f'{self.animal} - {self.tutor}'

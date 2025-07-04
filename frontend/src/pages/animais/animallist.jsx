@@ -97,6 +97,7 @@ export default function AnimalList() {
                 <div className="card-body d-flex flex-column">
                   <h5 className="card-title">{animal.nome}</h5>
                   <p className="card-text mb-1">Espécie: {animal.especie}</p>
+                  <p className="card-text mb-2">Sexo: {animal.sexo} || Porte: {animal.porte}</p>
                   <p className="card-text mb-2">Status: {animal.status}</p>
 
                   {userTipo === 'tutor' && (

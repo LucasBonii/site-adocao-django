@@ -7,6 +7,9 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [tipo, setTipo] = useState('tutor');
+  const [telefone, setTelefone] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
@@ -18,6 +21,9 @@ export default function Register() {
         email,
         password,
         tipo,
+        telefone,
+        cidade,
+        estado
       });
       navigate('/login');
     } catch (err) {
@@ -28,7 +34,7 @@ export default function Register() {
 
   return (
     <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <form onSubmit={handleRegister} className="p-4 border rounded" style={{ minWidth: '300px' }}>
+      <form onSubmit={handleRegister} className="p-4 border rounded" style={{ minWidth: '300px', maxWidth: '400px', width: '100%' }}>
         <h2 className="text-center mb-4">Criar Conta</h2>
 
         <input
@@ -39,6 +45,7 @@ export default function Register() {
           onChange={(e) => setUsername(e.target.value)}
           required
         />
+
         <input
           type="email"
           className="form-control mb-3"
@@ -47,6 +54,7 @@ export default function Register() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
         <input
           type="password"
           className="form-control mb-3"
@@ -55,6 +63,34 @@ export default function Register() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+
+        <input
+          type="text"
+          className="form-control mb-3"
+          placeholder="Telefone"
+          value={telefone}
+          onChange={(e) => setTelefone(e.target.value)}
+          required
+        />
+
+        <input
+          type="text"
+          className="form-control mb-3"
+          placeholder="Cidade"
+          value={cidade}
+          onChange={(e) => setCidade(e.target.value)}
+          required
+        />
+
+        <input
+          type="text"
+          className="form-control mb-3"
+          placeholder="Estado"
+          value={estado}
+          onChange={(e) => setEstado(e.target.value)}
+          required
+        />
+
         <select
           className="form-select mb-3"
           value={tipo}
