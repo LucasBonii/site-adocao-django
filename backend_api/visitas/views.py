@@ -24,12 +24,11 @@ class VisitaAPIView(APIView):
 
         try:
             visitas_collection = self._get_mongo_collection()
-
             if user.tipo == 'ong':
                 visitas = list(visitas_collection.find(
                     {"ong_id": str(user.id)}, {"_id": 0}
                 ))
-            else:  # admin
+            else:  
                 visitas = list(visitas_collection.find({}, {"_id": 0}))
 
             return Response(visitas)

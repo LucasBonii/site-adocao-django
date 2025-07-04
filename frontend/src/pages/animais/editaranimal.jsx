@@ -19,6 +19,28 @@ export default function EditarAnimal() {
     document.title = 'Editar animal';
   }, []);
 
+  useEffect(() => {
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const res = await axios.get('http://localhost:8000/api/me/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const tipo = res.data.tipo;
+        if (tipo !== 'ong' && tipo !== 'admin') {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        console.error('Erro ao verificar permissão:', err);
+        navigate('/dashboard');
+      }
+    };
+
+    verificarPermissao();
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -52,6 +74,8 @@ export default function EditarAnimal() {
       alert('Erro ao salvar alterações.');
     });
   };
+
+  if (carregando) return <p>Carregando...</p>;
 
   return (
     <div className="container py-5">

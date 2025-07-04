@@ -9,14 +9,30 @@ export default function NovaOng() {
     descricao: '',
     cnpj: '',
   });
+  const [erro, setErro] = useState(null);
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     document.title = 'Criar Ong';
-  }, []);
 
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const res = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-  const [erro, setErro] = useState(null);
-  const [salvando, setSalvando] = useState(false);
+        if (res.data.tipo !== 'ong') {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        console.error('Erro ao verificar permissão:', err);
+        navigate('/dashboard');
+      }
+    };
+
+    verificarPermissao();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

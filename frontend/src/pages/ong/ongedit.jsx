@@ -6,43 +6,54 @@ export default function OngEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-
   const [nome, setNome] = useState('');
   const [cnpj, setCnpj] = useState('');
   const [descricao, setDescricao] = useState('');
   const [email, setEmail] = useState('');
   const [ong, setOng] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = 'Editar Ong';
-  }, []);
 
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const resUser = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (resUser.data.tipo !== 'ong' && resUser.data.tipo !== 'admin') {
+          navigate('/dashboard');
+          return;
+        }
 
-  useEffect(() => {
-    const token = localStorage.getItem('access');
-    axios.get(`http://localhost:8000/api/ongs/${id}/`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+        const resOng = await axios.get(`http://localhost:8000/api/ongs/${id}/`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setOng(resOng.data);
+        setNome(resOng.data.nome || '');
+        setCnpj(resOng.data.cnpj || '');
+        setDescricao(resOng.data.descricao || '');
+        setEmail(resOng.data.user?.email || '');
+        setLoading(false);
+
+      } catch (err) {
+        console.error('Erro ao carregar dados ou verificar permissão:', err);
+        navigate('/dashboard');
       }
-    })
-    .then(res => {
-      setOng(res.data);
-      setNome(res.data.nome || '');        
-      setCnpj(res.data.cnpj || '');
-      setDescricao(res.data.descricao || '');
-      setEmail(res.data.user?.email || '');
-    })
-    .catch(err => {
-      console.error('Erro ao carregar dados da ONG:', err);
-    });
-  }, [id]);
+    };
+
+    verificarPermissao();
+  }, [id, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('access');
 
     axios.put(`http://localhost:8000/api/ongs/${id}/`, {
-      nome,            
+      nome,
       cnpj,
       descricao,
       user: ong.user
@@ -61,7 +72,7 @@ export default function OngEdit() {
     });
   };
 
-  if (!ong) return <p>Carregando...</p>;
+  if (loading) return <p>Carregando...</p>;
 
   return (
     <div className="container py-5">
@@ -106,7 +117,7 @@ export default function OngEdit() {
         </div>
 
         <div className="d-flex justify-content-between">
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/ongs')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
             Cancelar
           </button>
           <button type="submit" className="btn btn-primary">

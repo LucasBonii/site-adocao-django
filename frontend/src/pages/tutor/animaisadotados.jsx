@@ -4,25 +4,41 @@ import { useNavigate } from 'react-router-dom';
 
 export default function AnimaisAdotados() {
   const [animais, setAnimais] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Animais adotados';
-  }, []);
 
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const resUser = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-  useEffect(() => {
-    const token = localStorage.getItem('access');
+        if (resUser.data.tipo !== 'tutor' && resUser.data.tipo !== 'admin') {
+          alert('Acesso negado. Apenas tutores e administradores podem acessar esta página.');
+          navigate('/dashboard');
+          return;
+        }
 
-    axios.get('http://localhost:8000/api/meus-animais-adotados/', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => setAnimais(res.data))
-    .catch(err => {
-      console.error(err);
-      alert('Erro ao carregar seus animais adotados');
-    });
-  }, []);
+        const resAnimais = await axios.get('http://localhost:8000/api/meus-animais-adotados/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setAnimais(resAnimais.data);
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao carregar seus animais adotados.');
+        navigate('/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verificarPermissao();
+  }, [navigate]);
 
   const handleDelete = (id) => {
     if (!window.confirm('Tem certeza que deseja excluir este animal?')) return;
@@ -44,6 +60,10 @@ export default function AnimaisAdotados() {
   const handleEdit = (tutorAnimalId) => {
     navigate(`/tutor-animal/editar/${tutorAnimalId}`);
   };
+
+  if (loading) {
+    return <p>Carregando seus animais adotados...</p>;
+  }
 
   if (animais.length === 0) {
     return (

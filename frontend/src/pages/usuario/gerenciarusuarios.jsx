@@ -9,26 +9,36 @@ export default function GerenciarUsuarios() {
 
   useEffect(() => {
     document.title = 'Gerenciar usuários';
-  }, []);
 
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const resUser = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-  useEffect(() => {
-    const token = localStorage.getItem('access');
+        if (resUser.data.tipo !== 'admin') {
+          alert('Acesso negado. Apenas administradores podem acessar esta página.');
+          navigate('/dashboard');
+          return;
+        }
 
-    axios.get('http://localhost:8000/api/usuarios/', {
-      headers: {
-        Authorization: `Bearer ${token}`
+        const resUsuarios = await axios.get('http://localhost:8000/api/usuarios/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUsuarios(resUsuarios.data);
+      } catch (err) {
+        console.error('Erro ao carregar usuários ou verificar permissão:', err);
+        alert('Erro ao verificar permissão ou carregar usuários.');
+        navigate('/dashboard');
+      } finally {
+        setLoading(false);
       }
-    })
-    .then(res => {
-      setUsuarios(res.data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error('Erro ao carregar usuários:', err);
-      setLoading(false);
-    });
-  }, []);
+    };
+
+    verificarPermissao();
+  }, [navigate]);
 
   const handleEdit = (id) => {
     navigate(`/usuario/editar/${id}`);
@@ -52,6 +62,7 @@ export default function GerenciarUsuarios() {
   };
 
   if (loading) return <p>Carregando usuários...</p>;
+
 
   return (
     <div className="container py-5">

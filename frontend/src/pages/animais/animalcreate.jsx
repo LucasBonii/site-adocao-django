@@ -1,4 +1,4 @@
-import { useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,29 +11,54 @@ export default function AnimalCreate() {
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState('disponivel');
   const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(true);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     document.title = 'Crie seu animal';
-  }, []);
+
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const res = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.data.tipo !== 'ong') {
+          navigate('/dashboard'); 
+        } else {
+          setCarregando(false);
+        }
+      } catch (err) {
+        console.error('Erro ao verificar tipo do usuário:', err);
+        navigate('/dashboard'); 
+      }
+    };
+
+    verificarPermissao();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('access');
-      await axios.post('http://localhost:8000/api/animais/', {
-        nome,
-        especie,
-        porte,
-        sexo,
-        idade: Number(idade),
-        descricao,
-        status,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.post(
+        'http://localhost:8000/api/animais/',
+        {
+          nome,
+          especie,
+          porte,
+          sexo,
+          idade: Number(idade),
+          descricao,
+          status,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert('Animal cadastrado com sucesso!');
       navigate('/animais');
     } catch (err) {
@@ -41,6 +66,8 @@ export default function AnimalCreate() {
       setErro('Erro ao cadastrar animal. Verifique os dados.');
     }
   };
+
+  if (carregando) return <p>Carregando...</p>;
 
   return (
     <div className="container mt-5" style={{ maxWidth: '600px' }}>

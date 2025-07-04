@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Visitas() {
   const [visitas, setVisitas] = useState([]);
   const [userTipo, setUserTipo] = useState(null);
-  const [modoEdicao, setModoEdicao] = useState(null); 
+  const [modoEdicao, setModoEdicao] = useState(null);
   const [formData, setFormData] = useState({
     tutor_nome: '',
     animal_nome: '',
@@ -16,18 +16,20 @@ export default function Visitas() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Ongs';
-  }, []);
+    document.title = 'Visitas';
 
-
-  useEffect(() => {
-    const token = localStorage.getItem('access');
-
-    async function fetchData() {
+    const verificarPermissao = async () => {
       try {
+        const token = localStorage.getItem('access');
         const resUser = await axios.get('http://localhost:8000/api/me/', {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (resUser.data.tipo !== 'ong' && resUser.data.tipo !== 'admin') {
+          navigate('/dashboard');
+          return;
+        }
+
         setUserTipo(resUser.data.tipo);
 
         const resVisitas = await axios.get('http://localhost:8000/api/visitas/', {
@@ -38,10 +40,10 @@ export default function Visitas() {
         console.error(err);
         navigate('/dashboard');
       }
-    }
-    fetchData();
-  }, [navigate]);
+    };
 
+    verificarPermissao();
+  }, [navigate]);
 
   const iniciarEdicao = (visita) => {
     setModoEdicao(visita);

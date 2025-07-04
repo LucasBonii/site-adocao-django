@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,26 +9,31 @@ export default function GerenciarOngs() {
 
   useEffect(() => {
     document.title = 'Gerenciar Ongs';
-  }, []);
 
+    const verificarPermissao = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        const resUser = await axios.get('http://localhost:8000/api/me/', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resUser.data.tipo !== 'admin') {
+          navigate('/dashboard');
+          return;
+        }
 
-  useEffect(() => {
-    const token = localStorage.getItem('access');
-
-    axios.get('http://localhost:8000/api/ongs/', {
-      headers: {
-        Authorization: `Bearer ${token}`
+        const resOngs = await axios.get('http://localhost:8000/api/ongs/', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setOngs(resOngs.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        navigate('/dashboard');
       }
-    })
-    .then(res => {
-      setOngs(res.data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error('Erro ao carregar ONGs:', err);
-      setLoading(false);
-    });
-  }, []);
+    };
+
+    verificarPermissao();
+  }, [navigate]);
 
   const editarOng = (id) => {
     navigate(`/ong/editar/${id}`);
@@ -50,7 +55,6 @@ export default function GerenciarOngs() {
       alert('Erro ao excluir ONG.');
     });
   };
-
 
   if (loading) return <p>Carregando ONGs...</p>;
 
