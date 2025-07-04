@@ -10,6 +10,11 @@ export default function AnimalList() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Animais';
+  }, []);
+
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const resUser = await axios.get('http://localhost:8000/api/me/', {

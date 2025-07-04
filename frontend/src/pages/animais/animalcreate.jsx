@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect  } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,10 @@ export default function AnimalCreate() {
   const [status, setStatus] = useState('disponivel');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    document.title = 'Crie seu animal';
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

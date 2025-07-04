@@ -7,6 +7,11 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    document.title = 'Dashboard';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     if (token) {

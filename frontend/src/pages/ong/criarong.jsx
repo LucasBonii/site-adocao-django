@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,6 +9,12 @@ export default function NovaOng() {
     descricao: '',
     cnpj: '',
   });
+
+  useEffect(() => {
+    document.title = 'Criar Ong';
+  }, []);
+
+
   const [erro, setErro] = useState(null);
   const [salvando, setSalvando] = useState(false);
 

@@ -16,6 +16,11 @@ export default function EditarAnimal() {
   });
 
   useEffect(() => {
+    document.title = 'Editar animal';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
     axios.get(`http://localhost:8000/api/animais/${id}/`, {
       headers: { Authorization: `Bearer ${token}` }

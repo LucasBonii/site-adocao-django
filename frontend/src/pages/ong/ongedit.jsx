@@ -14,6 +14,11 @@ export default function OngEdit() {
   const [ong, setOng] = useState(null);
 
   useEffect(() => {
+    document.title = 'Editar Ong';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
     axios.get(`http://localhost:8000/api/ongs/${id}/`, {
       headers: {

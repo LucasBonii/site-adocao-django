@@ -16,6 +16,11 @@ export default function Visitas() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Ongs';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     async function fetchData() {

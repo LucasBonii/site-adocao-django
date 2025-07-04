@@ -11,6 +11,11 @@ export default function EditarVisita() {
   const [erro, setErro] = useState(null);
 
   useEffect(() => {
+    document.title = 'Editar visita';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     axios.get(`http://localhost:8000/api/visitas/${id}/`, {

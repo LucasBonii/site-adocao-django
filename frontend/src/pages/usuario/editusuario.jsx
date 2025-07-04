@@ -11,6 +11,11 @@ export default function EditarUsuario() {
   const [erro, setErro] = useState(null);
 
   useEffect(() => {
+    document.title = 'Editar usuário';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     axios.get(`http://localhost:8000/api/usuarios/${id}/`, {

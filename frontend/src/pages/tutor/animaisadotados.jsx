@@ -7,6 +7,11 @@ export default function AnimaisAdotados() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Animais adotados';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     axios.get('http://localhost:8000/api/meus-animais-adotados/', {

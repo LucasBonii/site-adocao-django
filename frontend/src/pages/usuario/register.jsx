@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,11 @@ export default function Register() {
   const [estado, setEstado] = useState('');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Criar conta';
+  }, []);
+
 
   const handleRegister = async (e) => {
     e.preventDefault();

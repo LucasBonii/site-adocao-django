@@ -8,6 +8,11 @@ export default function Candidaturas() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Candidaturas';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     axios.get('http://localhost:8000/api/me/', {

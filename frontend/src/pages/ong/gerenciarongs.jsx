@@ -8,6 +8,11 @@ export default function GerenciarOngs() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Gerenciar Ongs';
+  }, []);
+
+
+  useEffect(() => {
     const token = localStorage.getItem('access');
 
     axios.get('http://localhost:8000/api/ongs/', {
