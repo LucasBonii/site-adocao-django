@@ -75,7 +75,6 @@ export default function EditarAnimal() {
     });
   };
 
-  if (carregando) return <p>Carregando...</p>;
 
   return (
     <div className="container py-5">

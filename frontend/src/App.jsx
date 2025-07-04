@@ -54,23 +54,11 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated() ? <Dashboard userType={userType} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/animais"
-          element={isAuthenticated() ? <AnimalList /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/candidaturas"
-          element={isAuthenticated() ? <Candidaturas /> : <Navigate to="/login" />}
-        />
+        <Route path="/dashboard" element={isAuthenticated() ? <Dashboard userType={userType} /> : <Navigate to="/login" />}/>
+        <Route path="/animais" element={isAuthenticated() ? <AnimalList /> : <Navigate to="/login" />}/>
+        <Route path="/candidaturas" element={isAuthenticated() ? <Candidaturas /> : <Navigate to="/login" />}/>
 
-        <Route
-          path="/animais/novo"
-          element={isAuthenticated() ? <AnimalCreate /> : <Navigate to="/login" />}
-        />
+        <Route path="/animais/novo" element={isAuthenticated() ? <AnimalCreate /> : <Navigate to="/login" />}/>
 
         <Route path="/meus-animais-adotados" element={isAuthenticated() ? <AnimaisAdotados /> : <Navigate to="/login" />} />
 

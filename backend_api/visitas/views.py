@@ -37,7 +37,7 @@ class VisitaAPIView(APIView):
 
     def post(self, request):
         user = request.user
-        if user.tipo != 'ong':
+        if user.tipo not in ['ong', 'admin']:
             raise PermissionDenied("Apenas ONGs podem registrar visitas.")
 
         data_enviada = request.data.get("data")
@@ -89,8 +89,8 @@ class VisitaAPIView(APIView):
 
     def put(self, request):
         user = request.user
-        if user.tipo != 'ong':
-            raise PermissionDenied("Apenas ONGs podem editar visitas.")
+        if user.tipo not in ['ong', 'admin']:
+            raise PermissionDenied("Apenas ONGs ou administradores podem editar visitas.")
 
         tutor_nome_antigo = request.data.get("tutor_nome_antigo")
         animal_nome_antigo = request.data.get("animal_nome_antigo")
@@ -103,10 +103,12 @@ class VisitaAPIView(APIView):
             "tutor_nome": tutor_nome_antigo,
             "animal_nome": animal_nome_antigo,
             "data": data_antiga,
-            "ong_id": str(user.id)
         }
 
-        
+        if user.tipo == 'ong':
+            filtro["ong_id"] = str(user.id)
+
+
         novos_dados = {
             "tutor_nome": request.data.get("tutor_nome"),
             "animal_nome": request.data.get("animal_nome"),
@@ -119,6 +121,6 @@ class VisitaAPIView(APIView):
         result = self._get_mongo_collection().update_one(filtro, {"$set": novos_dados})
 
         if result.matched_count == 0:
-            return Response({"erro": "Visita não encontrada."}, status=404)
+            return Response({"erro": "Visita não encontrada. Verifique os dados antigos enviados."}, status=404)
 
         return Response({"mensagem": "Visita atualizada com sucesso."}, status=200)
