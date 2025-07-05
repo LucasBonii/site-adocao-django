@@ -17,6 +17,11 @@ class VisitaAPIView(APIView):
         db = client["adocao_nosql"]
         return db.visitas
 
+
+    @swagger_auto_schema(
+        operation_description="Listar visitas (somente ONG ou admin). ONG verá apenas as suas.",
+        responses={200: openapi.Response('Lista de visitas')}
+    )
     def get(self, request):
         user = request.user
         if user.tipo not in ['ong', 'admin']:
@@ -35,6 +40,20 @@ class VisitaAPIView(APIView):
         except Exception as e:
             return Response({"erro": str(e)}, status=500)
 
+    @swagger_auto_schema(
+        operation_description="Registrar nova visita (somente ONG ou admin)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['tutor_nome', 'animal_nome'],
+            properties={
+                'tutor_nome': openapi.Schema(type=openapi.TYPE_STRING, description='Nome do tutor'),
+                'animal_nome': openapi.Schema(type=openapi.TYPE_STRING, description='Nome do animal'),
+                'observacoes': openapi.Schema(type=openapi.TYPE_STRING, description='Observações'),
+                'data': openapi.Schema(type=openapi.TYPE_STRING, format='date', description='Data da visita (opcional)'),
+            }
+        ),
+        responses={201: openapi.Response('Visita registrada')}
+    )
     def post(self, request):
         user = request.user
         if user.tipo not in ['ong', 'admin']:
@@ -58,7 +77,19 @@ class VisitaAPIView(APIView):
         except Exception as e:
             return Response({"erro": str(e)}, status=500)
 
-
+    @swagger_auto_schema(
+        operation_description="Deletar visita (somente ONG ou admin)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['tutor_nome', 'animal_nome', 'data'],
+            properties={
+                'tutor_nome': openapi.Schema(type=openapi.TYPE_STRING),
+                'animal_nome': openapi.Schema(type=openapi.TYPE_STRING),
+                'data': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+            }
+        ),
+        responses={200: openapi.Response('Visita deletada com sucesso')}
+    )
     def delete(self, request):
         user = request.user
         if user.tipo not in ['ong', 'admin']:
@@ -87,6 +118,24 @@ class VisitaAPIView(APIView):
 
         return Response({"mensagem": "Visita deletada com sucesso."}, status=200)
 
+
+    @swagger_auto_schema(
+        operation_description="Atualizar visita existente (somente ONG ou admin)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['tutor_nome_antigo', 'animal_nome_antigo', 'data_antiga'],
+            properties={
+                'tutor_nome_antigo': openapi.Schema(type=openapi.TYPE_STRING),
+                'animal_nome_antigo': openapi.Schema(type=openapi.TYPE_STRING),
+                'data_antiga': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+                'tutor_nome': openapi.Schema(type=openapi.TYPE_STRING),
+                'animal_nome': openapi.Schema(type=openapi.TYPE_STRING),
+                'observacoes': openapi.Schema(type=openapi.TYPE_STRING),
+                'data': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+            }
+        ),
+        responses={200: openapi.Response('Visita atualizada com sucesso')}
+    )
     def put(self, request):
         user = request.user
         if user.tipo not in ['ong', 'admin']:
